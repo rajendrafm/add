@@ -6,9 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class Book extends Model
 {
+    //
     protected $fillable = ['title','author_id','amount'];
-    public function books()
+
+    public function author()
     {
-    	return $this->belongTo('App\Author');
+    	return $this->belongsTo('App\Author');
     }
 }
