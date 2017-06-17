@@ -9,37 +9,30 @@ use App\Book;
 
 class BooksController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index(Request $request,Builder $htmlBuilder)
+    //
+    public function index(Request $request, Builder $htmlBuilder)
     {
-        //
-        if ($request->ajax()){
-            $books=Book::with('author');
-            return Datatables::of($books)
-            ->addColumn('action',function($book){
-            return view('Datatable._action',[
-                'model'=>$book,
-                'form_url'=>route('books.destroy',$book->id),
-                'edit_url'=>route('books.edit',$book->id),
-                'confirm_message'=>'Yakin mau menghapus'.$book->title.'?'
-                ]);
-
-        })->make(true);
-    }
-
-    $html =$htmlBuilder
-        ->addColumn(['data'=>'title','name'=>'title','title'=>'Judul'])
-        ->addColumn(['data'=>'amount','name'=>'amount','title'=>'Jumlah'])
-        ->addColumn(['data'=>'author.name','name'=>'author.name','title'=>'Penulis'])
-        ->addColumn(['data'=>'action','name'=>'action','title'=>'','orderable'=>false,'searchable'=>false]);
+        if ($request->ajax()) {
+            $books = Book::with('author');
+            return Datatables::of($books)->addColumn('action', function($book){
+                return view('datatable._action', [
+                    'model'=>$book,
+                    'form_url'=>route('books.destroy', $book->id),
+                    'edit_url'=>route('books.edit', $book->id),
+                    'confirm_message'=>'Yakin Mau Menghapus' .$book->title. '?'
+                    ]);
+            })->make(true);
+        }
+        $html = $htmlBuilder
+        ->addColumn(['data'=>'title', 'name'=>'title', 'title'=>'Judul'])
+        ->addColumn(['data'=>'amount', 'name'=>'amount', 'title'=>'Jumlah'])
+        ->addColumn(['data'=>'author.name', 'name'=>'author.name', 'title'=>'Penulis'])
+        ->addColumn(['data'=>'action', 'name'=>'action', 'title'=>'', 'orderable'=>false, 'searchable'=>false]);
 
         return view('books.index')->with(compact('html'));
-    }
-    /**
+	}
+
+/**
      * Show the form for creating a new resource.
      *
      * @return \Illuminate\Http\Response
@@ -47,6 +40,7 @@ class BooksController extends Controller
     public function create()
     {
         //
+        return view('books.create');
     }
 
     /**
@@ -58,6 +52,10 @@ class BooksController extends Controller
     public function store(Request $request)
     {
         //
+        $this->validate($request, ['name'=>'required|unique:authors']);
+        $author = Author::create($request->only('name'));
+        Session::flash("flash_notification", ["level"=>"success", "message"=>"Berhasil menyimpan $author->name"]);
+        return redirect()->route('authors.index');
     }
 
     /**
@@ -80,6 +78,8 @@ class BooksController extends Controller
     public function edit($id)
     {
         //
+        $author = Author::find($id);
+        return view('authors.edit')->with(compact('author'));
     }
 
     /**
@@ -92,6 +92,11 @@ class BooksController extends Controller
     public function update(Request $request, $id)
     {
         //
+        $this->validate($request, ['name'=>'required|unique:authors,name,'.$id]);
+        $author = Author::find($id);
+        $author->update($request->only('name'));
+        Session::flash("flash_notification", ["level"=>"success", "message"=>"Berhasil menyimpan $author->name"]);
+        return redirect()->route('authors.index');    
     }
 
     /**
@@ -103,5 +108,9 @@ class BooksController extends Controller
     public function destroy($id)
     {
         //
+        if(!Author::destroy($id)) return redirect()->back();
+
+        Session::flash("flash_notification", ["level"=>"success", "message"=>"Penulis Berhasil Dihapus"]);
+        return redirect()->route('authors.index'); 
     }
 }
