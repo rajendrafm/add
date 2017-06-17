@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use Yajra\Datatables\Html\Builder;
 use Yajra\Datatables\Datatables;
 use App\Book;
+use session;
+use App\Author;
 
 class BooksController extends Controller
 {
@@ -52,10 +54,33 @@ class BooksController extends Controller
     public function store(Request $request)
     {
         //
-        $this->validate($request, ['name'=>'required|unique:authors']);
-        $author = Author::create($request->only('name'));
-        Session::flash("flash_notification", ["level"=>"success", "message"=>"Berhasil menyimpan $author->name"]);
-        return redirect()->route('authors.index');
+        $this->validate($request, [
+            'title'  =>'required|unique:books,title',
+            'author_id'   =>'required|exists:authors,id',
+            'amount'   =>'required|numeric',
+            'cover'   =>'image|max:2048'
+            ]);
+    
+    $book = Book::create($request->except('cover'));
+
+        if ($request->hasFile('cover')){
+            $uploaded_cover = $request->file('cover');
+
+            $extension = $uploaded_cover->getClientOriginalExtension();
+
+            $filename = md5(time()).'.'. $extension;
+
+            $destinationPath = public_path() . DIRECTORY_SEPARATOR . 'img';
+            $uploaded_cover->move($destinationPath, $filename);
+
+            $book->cover = $filename;
+            $book->save();
+        }
+        session::flash("flash_notification", [
+            "level"=>"success",
+            "message"=>"berhasil menyiman $book->title"
+        ]);
+        return redirect()->route('bboks.index');
     }
 
     /**
@@ -77,9 +102,11 @@ class BooksController extends Controller
      */
     public function edit($id)
     {
-        //
+        
         $author = Author::find($id);
         return view('authors.edit')->with(compact('author'));
+        $book = Book::find($id);
+        return view('books.edit')-with(compact('book'));
     }
 
     /**

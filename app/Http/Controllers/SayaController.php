@@ -14,7 +14,7 @@ public function __contract()
 
     public function inn()
     {
-    $a='septian';
+    $a='rajendra';
     return view('inn', compact($a));
 	}
 }
