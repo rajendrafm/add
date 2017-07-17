@@ -1,6 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="stylesheet" type="text/css" href="{{ asset('bootstrap/css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('table/css/jquery.dataTables.css') }}">
+    <link rel="stylesheet" href="{{ asset('table/css/dataTables.bootstrap.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/selectize.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/selectize.bootstrap3.css') }}">
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -12,8 +17,6 @@
 
     <!-- Styles -->
     <link href="/css/app.css" rel="stylesheet">
-    <link href="/css/jquery.dataTables.css" rel="stylesheet">
-    <link href="/css/dataTables.bootstrap.css" rel="stylesheet">
 
     <!-- Scripts -->
     <script>
@@ -45,13 +48,19 @@
                 <div class="collapse navbar-collapse" id="app-navbar-collapse">
                     <!-- Left Side Of Navbar -->
                     <ul class="nav navbar-nav">
-                        @if (Auth::check())
-                            <li><a href="{{url('/home') }}">Dashboard</a></li>
+                        @if(Auth::check())
+                            <li><a href="{{ url('/home') }}">Dashboard</a></li>
                         @endif
                         @role('admin')
-                            <li><a href="{{route('authors.index') }}">Penulis</a></li>
-                            <li><a href="{{route('books.index') }}">Buku</a></li>
+                            <li><a href="{{ route('authors.index') }}">Penulis</a></li>
+                            <li><a href="{{ route('books.index') }}">Buku</a></li>
+                            <li><a href="{{ route('members.index') }}">Member</a></li>
+                            <li><a href="{{ route('statistics.index') }}">Peminjaman</a></li>
+
                         @endrole
+                        @if (auth()->check())
+                            <li><a href="{{ url('/settings/profile') }}">Profil</a></li>
+                        @endif
                     </ul>
 
                     <!-- Right Side Of Navbar -->
@@ -67,6 +76,7 @@
                                 </a>
 
                                 <ul class="dropdown-menu" role="menu">
+                                    <li><a href="{{ url('/settings/password') }}"><i class="fa fa-btn fa-lock"></i> Ubah Password</a></li>
                                     <li>
                                         <a href="{{ url('/logout') }}"
                                             onclick="event.preventDefault();
@@ -85,17 +95,16 @@
                 </div>
             </div>
         </nav>
-
         @include('layouts._flash')
         @yield('content')
     </div>
 
     <!-- Scripts -->
     <script src="/js/app.js"></script>
-    <script src="/js/jquery.dataTables.min.js"></script>
-    <script src="/js/dataTables.bootstrap.min.js"></script>
+    <script src="{{ asset('table/js/jquery.dataTables.min.js') }}"></script>
+    <script src="{{ asset('table/js/dataTables.bootstrap.min.js') }}"></script>
+    <script src="{{ asset('js/selectize.min.js') }}"></script>
     <script src="/js/custom.js"></script>
     @yield('scripts')
-    @include('layouts.menu')
 </body>
 </html>
